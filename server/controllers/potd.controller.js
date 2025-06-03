@@ -214,17 +214,24 @@ export const postCheckPotdSolved = async (req, res) => {
         });
       }
 
-      const match = problemLink.match(/\/(?:contest|problemset)\/(\d+)\/problem\/([A-Z]\d*)/i);
+      let contestId, problemIndex;
 
-
-      if (!match) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid Codeforces problem link format.",
-        });
+      let match = problemLink.match(/\/contest\/(\d+)\/problem\/([A-Z]\d*)/i);
+      if (match) {
+        contestId = match[1];
+        problemIndex = match[2];
+      } else {
+        match = problemLink.match(/\/problemset\/problem\/(\d+)\/([A-Z]\d*)/i);
+        if (match) {
+          contestId = match[1];
+          problemIndex = match[2];
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid Codeforces problem link format.",
+          });
+        }
       }
-
-      const [_, contestId, problemIndex] = match;
 
       isSolved = data.result.some(
         (sub) =>
