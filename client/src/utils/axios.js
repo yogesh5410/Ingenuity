@@ -1,7 +1,7 @@
 // src/common/AxiosInstance.js
 
 import axios from "axios";
-import SummaryApi, { baseURL } from "../common/SummaryApi";
+import SummaryApi, { baseURL } from "../common/summaryApi.js";
 
 // Create an Axios instance with base URL and credentials support
 const Axios = axios.create({
