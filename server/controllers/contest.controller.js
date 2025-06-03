@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const contestCache = new NodeCache({ stdTTL: 600 }); // 10 min cache
+const contestCache = new NodeCache({ stdTTL: 3600 }); // 10 min cache
 const CLIST_USERNAME = process.env.CLIST_USERNAME;
 const CLIST_API_KEY = process.env.CLIST_API_KEY;
 
