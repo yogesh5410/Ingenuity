@@ -4,25 +4,26 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const contestCache = new NodeCache({ stdTTL: 3600 }); // 10 min cache
+const contestCache = new NodeCache({ stdTTL: 3600 }); // 60 min cache
 const CLIST_USERNAME = process.env.CLIST_USERNAME;
 const CLIST_API_KEY = process.env.CLIST_API_KEY;
 
 export const getContests = async (req, res) => {
-  // Start the API request (don't await yet)
   const clistPromise = fetchContestsFromClist();
-
-  // Timeout Promise after 2s
   const timeoutPromise = new Promise((_, reject) =>
     setTimeout(() => reject(new Error("CLIST Timeout")), 2000)
   );
 
   try {
-    // Race API fetch vs timeout
     const contests = await Promise.race([clistPromise, timeoutPromise]);
 
-    // 🎯 CLIST API responded in under 2s → update cache & return data
-    contestCache.set("contests", contests);
+    // 🛑 Ensure contests is valid before caching
+    if (Array.isArray(contests) && contests.length > 0) {
+      contestCache.set("contests", contests);
+      console.log("✅ Cache set with", contests.length, "contests");
+    } else {
+      console.warn("⚠️ Invalid or empty contest data received; cache not updated.");
+    }
 
     return res.status(200).json({
       success: true,
@@ -31,11 +32,10 @@ export const getContests = async (req, res) => {
       data: contests,
     });
   } catch (error) {
-    // ⏰ Timeout or error
     const cachedData = contestCache.get("contests");
+    console.error("❌ Error or timeout from CLIST:", error.message);
 
     if (cachedData) {
-      // Serve cached data immediately
       res.status(200).json({
         success: true,
         error: false,
@@ -43,18 +43,21 @@ export const getContests = async (req, res) => {
         data: cachedData,
       });
 
-      // 🔄 In background, wait for CLIST and update cache
+      // Background update attempt
       clistPromise
         .then((freshData) => {
-          contestCache.set("contests", freshData);
-          console.log("✅ Cache updated in background.");
+          if (Array.isArray(freshData) && freshData.length > 0) {
+            contestCache.set("contests", freshData);
+            console.log("✅ Cache updated in background.");
+          } else {
+            console.warn("⚠️ Background fetch returned invalid data. Cache not updated.");
+          }
         })
         .catch((err) => {
           console.warn("⚠️ Failed to update contest cache in background:", err.message);
         });
 
     } else {
-      // No cache and API failed
       res.status(500).json({
         success: false,
         error: true,
@@ -63,6 +66,7 @@ export const getContests = async (req, res) => {
     }
   }
 };
+
 
 // 📡 CLIST fetch function
 const fetchContestsFromClist = async () => {
