@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CalendarDays, ExternalLink, Loader, AlertCircle } from "lucide-react";
 import Axios from "../utils/axios.js";
 import SummaryApi from "../common/summaryApi.js";
-import Cf_logo from "../assets/Cf_logo.png";
+import Cf_logo from "../assets/cf_logo.png";
 
 // Platform logos
 const platformLogos = {
