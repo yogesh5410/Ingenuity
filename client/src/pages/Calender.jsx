@@ -59,10 +59,9 @@ const platformColors = {
   },
 };
 
-// Convert UTC to IST (UTC+5:30)
+// Convert UTC to IST
 const formatIST = (utcString) => {
   const utcDate = new Date(utcString);
-  //const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
   return utcDate.toLocaleString("en-IN", {
     day: "2-digit",
     month: "2-digit",
@@ -72,6 +71,24 @@ const formatIST = (utcString) => {
     second: "2-digit",
     hour12: true,
   });
+};
+
+// Format duration
+const formatDuration = (seconds) => {
+  if (!seconds) return "";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  return `${h}h ${m}m`;
+};
+
+// Normalize platform key
+const normalizePlatformKey = (platform, site) => {
+  const key = (platform || site || "").toLowerCase();
+  if (key.includes("codeforces")) return "codeforces.com";
+  if (key.includes("leetcode")) return "leetcode.com";
+  if (key.includes("codechef")) return "codechef.com";
+  if (key.includes("geeksforgeeks")) return "geeksforgeeks.org";
+  return "unknown";
 };
 
 const Calender = () => {
@@ -99,22 +116,6 @@ const Calender = () => {
   useEffect(() => {
     fetchContests();
   }, []);
-
-  const formatDuration = (seconds) => {
-    if (!seconds) return "";
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    return `${h > 0 ? h + "h " : ""}${m}m`;
-  };
-
-  const normalizePlatformKey = (platform, site) => {
-    const key = (platform || site || "").toLowerCase();
-    if (key.includes("codeforces")) return "codeforces.com";
-    if (key.includes("leetcode")) return "leetcode.com";
-    if (key.includes("codechef")) return "codechef.com";
-    if (key.includes("geeksforgeeks")) return "geeksforgeeks.org";
-    return "unknown";
-  };
 
   return (
     <div className="min-h-screen px-4 py-8 bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white transition-colors duration-300">
@@ -170,15 +171,15 @@ const Calender = () => {
 
                 <p className="text-sm mb-1">
                   <span className="font-medium">Start:</span>{" "}
-                  <time dateTime={contest.start || contest.start_time}>
-                    {formatIST(contest.start || contest.start_time)}
+                  <time dateTime={contest.start}>
+                    {formatIST(contest.start)}
                   </time>
                 </p>
 
                 <p className="text-sm mb-1">
                   <span className="font-medium">End:</span>{" "}
-                  <time dateTime={contest.end || contest.end_time}>
-                    {formatIST(contest.end || contest.end_time)}
+                  <time dateTime={contest.end}>
+                    {formatIST(contest.end)}
                   </time>
                 </p>
 
@@ -189,7 +190,7 @@ const Calender = () => {
                 )}
 
                 <a
-                  href={contest.url || contest.href}
+                  href={contest.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 mt-5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
