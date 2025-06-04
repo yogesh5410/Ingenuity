@@ -160,9 +160,12 @@ const Navbar = () => {
     <>
       <header className="sticky top-0 z-50 bg-white dark:bg-neutral-900 shadow-md dark:shadow-black/30 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-            <Logo />
-            <span>Ingenuity</span>
+          <Link
+            to="/"
+            className="flex items-center space-x-2 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white"
+          >
+          <img src={Logo} alt="Logo" className="w-10 h-10 rounded-full" />
+          <span>Ingenuity</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
