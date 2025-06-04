@@ -48,7 +48,7 @@ const platformColors = {
     text: "text-[#FFA116] dark:text-[#FFB94F]",
   },
   "codechef.com": {
-    border: "border-[#5B4636]",
+    border: "border-[#F564A9]",
     bg: "bg-[#F8EBDD] dark:bg-[#332519]",
     text: "text-[#5B4636] dark:text-[#D7BBA4]",
   },
@@ -62,8 +62,8 @@ const platformColors = {
 // Convert UTC to IST (UTC+5:30)
 const formatIST = (utcString) => {
   const utcDate = new Date(utcString);
-  const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
-  return istDate.toLocaleString("en-IN", {
+  //const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+  return utcDate.toLocaleString("en-IN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
