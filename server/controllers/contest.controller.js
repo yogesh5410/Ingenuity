@@ -23,28 +23,28 @@ export const getContests = async (req, res) => {
 
     const filtered = data
       .map((contest) => {
-        // Defensive fallback values
         const startTime = contest.startTime ? new Date(contest.startTime) : null;
-        const endTime = contest.endTime ? new Date(contest.endTime) : null;
+        if (!startTime || isNaN(startTime)) return null;
 
-        // Skip contests without valid times
-        if (!startTime || isNaN(startTime) || !endTime || isNaN(endTime)) {
-          return null;
-        }
-
-        let durationSec = Math.floor((endTime - startTime) / 1000);
-
-        // Defensive check for platform key string
         const platformStr = (contest.site || contest.platform || "").toString().toLowerCase();
 
-        // Fix LeetCode large duration problem:
-        // Clamp LeetCode contests with duration > 6h to 90 minutes (5400 seconds)
-        if (platformStr.includes("leetcode") && durationSec > 6 * 3600) {
+        // For LeetCode contests: fix duration to 90 minutes and calculate endTime accordingly
+        let durationSec = 0;
+        let endTime = null;
+
+        if (platformStr.includes("leetcode")) {
           durationSec = 90 * 60; // 90 minutes in seconds
+          endTime = new Date(startTime.getTime() + durationSec * 1000);
+        } else {
+          endTime = contest.endTime ? new Date(contest.endTime) : null;
+          if (!endTime || isNaN(endTime)) return null;
+
+          durationSec = Math.floor((endTime - startTime) / 1000);
+          if (durationSec <= 0) return null; // Invalid duration
         }
 
         return {
-          id: contest.title + (startTime ? startTime.toISOString() : ""),
+          id: contest.title + startTime.toISOString(),
           name: contest.title || "Unnamed Contest",
           start: startTime.toISOString(),
           end: endTime.toISOString(),
@@ -53,12 +53,12 @@ export const getContests = async (req, res) => {
           url: contest.url || "#",
         };
       })
-      .filter((contest) => contest !== null) // remove invalid contests
+      .filter((contest) => contest !== null)
       .filter(
         (contest) =>
           new Date(contest.end) > now &&
           contest.duration > 0 &&
-          contest.duration < 7 * 24 * 3600
+          contest.duration < 7 * 24 * 3600 // less than 7 days
       )
       .sort((a, b) => new Date(a.start) - new Date(b.start));
 
