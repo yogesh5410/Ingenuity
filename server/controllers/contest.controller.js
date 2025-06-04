@@ -19,17 +19,47 @@ export const getContests = async (req, res) => {
 
     const { data } = await axios.get("https://competeapi.vercel.app/contests/upcoming/");
 
+    const now = new Date();
+
     const filtered = data
-      .filter(contest => new Date(contest.endTime) > new Date()) // upcoming only
-      .map(contest => ({
-        id: contest.title + contest.startTime,
-        name: contest.title,
-        start: new Date(contest.startTime).toISOString(),
-        end: new Date(contest.endTime).toISOString(),
-        duration: (new Date(contest.endTime) - new Date(contest.startTime)) / 1000,
-        platform: contest.site,
-        url: contest.url,
-      }))
+      .map((contest) => {
+        // Defensive fallback values
+        const startTime = contest.startTime ? new Date(contest.startTime) : null;
+        const endTime = contest.endTime ? new Date(contest.endTime) : null;
+
+        // Skip contests without valid times
+        if (!startTime || isNaN(startTime) || !endTime || isNaN(endTime)) {
+          return null;
+        }
+
+        let durationSec = Math.floor((endTime - startTime) / 1000);
+
+        // Defensive check for platform key string
+        const platformStr = (contest.site || contest.platform || "").toString().toLowerCase();
+
+        // Fix LeetCode large duration problem:
+        // Clamp LeetCode contests with duration > 6h to 90 minutes (5400 seconds)
+        if (platformStr.includes("leetcode") && durationSec > 6 * 3600) {
+          durationSec = 90 * 60; // 90 minutes in seconds
+        }
+
+        return {
+          id: contest.title + (startTime ? startTime.toISOString() : ""),
+          name: contest.title || "Unnamed Contest",
+          start: startTime.toISOString(),
+          end: endTime.toISOString(),
+          duration: durationSec,
+          platform: contest.site || contest.platform || "unknown",
+          url: contest.url || "#",
+        };
+      })
+      .filter((contest) => contest !== null) // remove invalid contests
+      .filter(
+        (contest) =>
+          new Date(contest.end) > now &&
+          contest.duration > 0 &&
+          contest.duration < 7 * 24 * 3600
+      )
       .sort((a, b) => new Date(a.start) - new Date(b.start));
 
     contestCache.set("allContests", filtered);
@@ -41,7 +71,7 @@ export const getContests = async (req, res) => {
       data: filtered,
     });
   } catch (error) {
-    console.error("❌ Error fetching from CompeteAPI:", error.message);
+    console.error("❌ Error fetching from CompeteAPI:", error);
 
     const cached = contestCache.get("allContests");
     if (cached) {
