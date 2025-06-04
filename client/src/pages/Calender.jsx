@@ -48,7 +48,7 @@ const platformColors = {
     text: "text-[#FFA116] dark:text-[#FFB94F]",
   },
   "codechef.com": {
-    border: "border-[#F564A9]",
+    border: "border-[#CA7842]",
     bg: "bg-[#F8EBDD] dark:bg-[#332519]",
     text: "text-[#5B4636] dark:text-[#D7BBA4]",
   },
