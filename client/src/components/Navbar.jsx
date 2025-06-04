@@ -7,6 +7,8 @@ import Axios from '../utils/axios';
 import SummaryApi from '../common/summaryApi';
 import toast from 'react-hot-toast';
 import AxiosToastError from '../utils/axiosToastError';
+import Logo from '../assets/Logo.jpg'
+
 import {
   User, Mail, Star, Code, Trophy,
   ShieldCheck, LogOut
@@ -55,35 +57,35 @@ const Navbar = () => {
     }
   };
 
-  const CpComplexLogo = () => (
-    <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 dark:text-cyan-400">
-      <polygon points="40 4 67 18 67 47 40 63 13 47 13 18" fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" opacity="0.25" />
-      <line x1="40" y1="10" x2="40" y2="58" stroke="currentColor" strokeWidth="1" opacity="0.1" />
-      <line x1="25" y1="20" x2="55" y2="20" stroke="currentColor" strokeWidth="1" opacity="0.1" />
-      <line x1="25" y1="30" x2="55" y2="30" stroke="currentColor" strokeWidth="1" opacity="0.1" />
-      <line x1="25" y1="40" x2="55" y2="40" stroke="currentColor" strokeWidth="1" opacity="0.1" />
-      <line x1="25" y1="50" x2="55" y2="50" stroke="currentColor" strokeWidth="1" opacity="0.1" />
-      <path d="M22 18 C14 28, 14 42, 22 52" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
-      <path d="M22 52 C14 62, 14 66, 22 66" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
-      <path d="M58 18 C66 28, 66 42, 58 52" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
-      <path d="M58 52 C66 62, 66 66, 58 66" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
-      <circle cx="40" cy="40" r="16" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.9" />
-      {[...Array(12)].map((_, i) => {
-        const angle = (i * 30) * (Math.PI / 180);
-        const innerRadius = 12;
-        const outerRadius = 16;
-        const x1 = 40 + innerRadius * Math.cos(angle);
-        const y1 = 40 + innerRadius * Math.sin(angle);
-        const x2 = 40 + outerRadius * Math.cos(angle);
-        const y2 = 40 + outerRadius * Math.sin(angle);
-        return (
-          <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
-        );
-      })}
-      <path d="M40 40 L60 24" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.9" />
-      <path d="M40 32 L54 24" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.9" />
-    </svg>
-  );
+  // const CpComplexLogo = () => (
+  //   <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 dark:text-cyan-400">
+  //     <polygon points="40 4 67 18 67 47 40 63 13 47 13 18" fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" opacity="0.25" />
+  //     <line x1="40" y1="10" x2="40" y2="58" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+  //     <line x1="25" y1="20" x2="55" y2="20" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+  //     <line x1="25" y1="30" x2="55" y2="30" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+  //     <line x1="25" y1="40" x2="55" y2="40" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+  //     <line x1="25" y1="50" x2="55" y2="50" stroke="currentColor" strokeWidth="1" opacity="0.1" />
+  //     <path d="M22 18 C14 28, 14 42, 22 52" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
+  //     <path d="M22 52 C14 62, 14 66, 22 66" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
+  //     <path d="M58 18 C66 28, 66 42, 58 52" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
+  //     <path d="M58 52 C66 62, 66 66, 58 66" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.85" />
+  //     <circle cx="40" cy="40" r="16" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.9" />
+  //     {[...Array(12)].map((_, i) => {
+  //       const angle = (i * 30) * (Math.PI / 180);
+  //       const innerRadius = 12;
+  //       const outerRadius = 16;
+  //       const x1 = 40 + innerRadius * Math.cos(angle);
+  //       const y1 = 40 + innerRadius * Math.sin(angle);
+  //       const x2 = 40 + outerRadius * Math.cos(angle);
+  //       const y2 = 40 + outerRadius * Math.sin(angle);
+  //       return (
+  //         <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+  //       );
+  //     })}
+  //     <path d="M40 40 L60 24" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.9" />
+  //     <path d="M40 32 L54 24" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.9" />
+  //   </svg>
+  // );
 
   const renderLinks = (isMobile = false) => (
   <>
@@ -159,7 +161,7 @@ const Navbar = () => {
       <header className="sticky top-0 z-50 bg-white dark:bg-neutral-900 shadow-md dark:shadow-black/30 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-            <CpComplexLogo />
+            <Logo />
             <span>Ingenuity</span>
           </Link>
 
