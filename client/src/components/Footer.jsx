@@ -30,23 +30,23 @@ export default function Footer() {
         {/* Social Links */}
         <div className="flex gap-6">
           <a
-            href="https://linkedin.com/in/your-profile"
+            href="https://www.linkedin.com/company/ingenuity-iit-bhilai/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-400 dark:hover:text-blue-500 transition duration-200 transform hover:scale-110"
           >
             <Linkedin size={24} />
           </a>
-          <a
-            href="https://github.com/your-org"
+{/*           <a
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-gray-300 dark:hover:text-gray-200 transition duration-200 transform hover:scale-110"
           >
             <Github size={24} />
-          </a>
+          </a> */}
           <a
-            href="https://instagram.com/your-page"
+            href="https://instagram.com/ingenuity_iit_bh"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-pink-400 dark:hover:text-pink-500 transition duration-200 transform hover:scale-110"
