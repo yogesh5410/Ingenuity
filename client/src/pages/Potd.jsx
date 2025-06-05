@@ -301,7 +301,7 @@ const PotdPage = () => {
           </div>
 
           {/* Hints Box */}
-          {hints.length > 0 && (
+          {(hints.length > 0 && !isLoading) && (
             <div className="p-6 rounded-xl bg-yellow-100 dark:bg-yellow-900 shadow-lg border border-yellow-300 dark:border-yellow-700">
               <h2 className="text-xl font-bold text-yellow-800 dark:text-yellow-300 mb-4">💡 Hints</h2>
               <ul className="space-y-3">
