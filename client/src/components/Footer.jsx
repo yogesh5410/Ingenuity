@@ -58,7 +58,7 @@ export default function Footer() {
 
       {/* Bottom Note */}
       <div className="mt-3 text-center text-sm text-gray-400 dark:text-gray-500">
-        Made with <span className="text-red-400 dark:text-red-500">❤️</span> by Ingenuity Team
+        Made with <span className="text-red-400 dark:text-red-500">❤️</span> by Yogesh
       </div>
       <div className="text-center text-sm text-gray-400 dark:text-gray-500">
         © {new Date().getFullYear()} Ingenuity, IIT Bhilai. All rights reserved.
