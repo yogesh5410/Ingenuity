@@ -13,10 +13,19 @@ This full-stack web application streamlines CP event management, daily problem t
 
 ## 📸 Screenshots
 
-| Home Page | Leaderboard | Admin Panel |
-|-----------|-------------|-------------|
-| ![Home](./assets/home.png) | ![Leaderboard](./assets/leaderboard.png) | ![Admin](./assets/admin.png) |
+| 🏠 Home / POTD Page | 👤 POTD (Admin) with Profile | 🌙 Dark Mode |
+|---------------------|-----------------------------|--------------|
+| ![PotdPage](./assets/PotdPage.png) | ![PotdAdminWithProfile](./assets/PotdAdminWithProfile.png) | ![DarkMode](./assets/DarkMode.png) |
 
+| 📅 Upcoming Contests | 🛠 Event Admin Page | 📆 Event Page |
+|----------------------|---------------------|---------------|
+| ![UpcomingContests](./assets/UpcomingContests.png) | ![EventAdmin](./assets/EventAdmin.png) | ![EventPage](./assets/EventPage.png) |
+
+| 🧑‍💻 Register Page | 📚 Resources Page | 🧭 Roadmap Page |
+|--------------------|------------------|----------------|
+| ![RegisterPage](./assets/RegisterPage.png) | ![Resources](./assets/Resources.png) | ![Roadmap](./assets/Roadmap.png) |
+
+> 📁 All screenshots are stored in the `./assets/` directory.
 
 ---
 
