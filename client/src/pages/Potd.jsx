@@ -131,9 +131,9 @@ const PotdPage = () => {
   }
 
   // ✅ Reset states — these match your useState hooks
-  setPotd(null);
-  setHints([]);
-  setIsSolved(false);
+  // setPotd(null);
+  // setHints([]);
+  // setIsSolved(false);
 
   setCurrentDate(selected);
   fetchPotd(selectedDate);
