@@ -118,22 +118,27 @@ const PotdPage = () => {
   };
 
   const handleDateClick = (day) => {
-    const selectedDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day
-      .toString()
-      .padStart(2, '0')}`;
-    const selected = new Date(selectedDate);
+  const selectedDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day
+    .toString()
+    .padStart(2, '0')}`;
+  const selected = new Date(selectedDate);
 
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999); // End of today
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999); // End of today
 
-    if (selected > todayEnd) {
-      // Disable dates after today
-      return;
-    }
+  if (selected > todayEnd) {
+    return;
+  }
 
-    setCurrentDate(selected);
-    fetchPotd(selectedDate);
-  };
+  // ✅ Reset states — these match your useState hooks
+  setPotd(null);
+  setHints([]);
+  setIsSolved(false);
+
+  setCurrentDate(selected);
+  fetchPotd(selectedDate);
+};
+
 
 
   const goToPrevMonth = () => {
