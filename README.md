@@ -10,22 +10,22 @@ This full-stack web application streamlines CP event management, daily problem t
 🔗 **[Visit Now → ingenuity-3.vercel.app](https://ingenuity-3.vercel.app/)**
 
 ---
-
 ## 📸 Screenshots
 
 | 🏠 Home / POTD Page | 👤 POTD (Admin) with Profile | 🌙 Dark Mode |
 |---------------------|-----------------------------|--------------|
-| ![PotdPage](./assets/PotdPage.png) | ![PotdAdminWithProfile](./assets/PotdAdminWithProfile.png) | ![DarkMode](./assets/DarkMode.png) |
+| ![PotdPage](client/src/assets/PotdPage.png) | ![PotdAdminWithProfile](client/src/assets/PotdAdminWithProfile.png) | ![DarkMode](client/src/assets/DarkMode.png) |
 
 | 📅 Upcoming Contests | 🛠 Event Admin Page | 📆 Event Page |
 |----------------------|---------------------|---------------|
-| ![UpcomingContests](./assets/UpcomingContests.png) | ![EventAdmin](./assets/EventAdmin.png) | ![EventPage](./assets/EventPage.png) |
+| ![UpcomingContests](client/src/assets/UpcomingContests.png) | ![EventAdmin](client/src/assets/EventAdmin.png) | ![EventPage](client/src/assets/EventPage.png) |
 
 | 🧑‍💻 Register Page | 📚 Resources Page | 🧭 Roadmap Page |
 |--------------------|------------------|----------------|
-| ![RegisterPage](./assets/RegisterPage.png) | ![Resources](./assets/Resources.png) | ![Roadmap](./assets/Roadmap.png) |
+| ![RegisterPage](client/src/assets/RegisterPage.png) | ![Resources](client/src/assets/Resources.png) | ![Roadmap](client/src/assets/Roadmap.png) |
 
-> 📁 All screenshots are stored in the `./assets/` directory.
+> 📁 All screenshots are stored in the `client/src/assets/` directory.
+
 
 ---
 
