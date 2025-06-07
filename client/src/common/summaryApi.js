@@ -22,6 +22,10 @@ const SummaryApi = {
     url: '/api/user/details',
     method: 'GET',
   },
+  refreshToken: {
+    url: '/api/user/refresh',
+    method: 'POST',
+  }
 
   // Email & ID Verification
   sendEmail: {
