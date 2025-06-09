@@ -126,11 +126,15 @@ export async function login(req, res) {
       error: false,
       message: 'Login successful',
       data: {
-        id: user._id,
         name: user.name,
         email: user.email,
-        cf_id: user.codeforces_id,
-        lc_id: user.leetcode_id
+        points: user.points,
+        leetcode: user.leetcode_id,
+        codeforces: user.codeforces_id,
+        solvedDates: user.solvedDates,
+        todayHintUnlocks: user.todayHintUnlocks,
+        todayHintDate: user.todayHintDate,
+        role: user.role,
       }
     });
   } catch (err) {
