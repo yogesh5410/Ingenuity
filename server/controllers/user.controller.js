@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import UserModel from '../models/user.model.js';
 import generatedAccessToken from '../utils/generatedAccessToken.js'
 import generatedRefreshToken from '../utils/generatedRefreshToken.js'
+import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
 dotenv.config();
 
