@@ -18,7 +18,7 @@ app.use(cors({
     credentials : true,
     origin : process.env.FRONTEND_URL    //url of frontend
 }))
-console.log("CORS enabled for", process.env.FRONTEND_URL)
+//console.log("CORS enabled for", process.env.FRONTEND_URL)
 app.use(express.json())    //all request will be in json format
 app.use(cookieParser())
 app.use(morgan())

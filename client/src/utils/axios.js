@@ -31,7 +31,7 @@ Axios.interceptors.response.use(
     if (error.response?.status === 401 && !originRequest.retry) {
       originRequest.retry = true; // Mark this request as retried
 
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken = localStorage.getItem("refreshtoken");
 
       if (refreshToken) {
         const newAccessToken = await refreshAccessToken(refreshToken);
@@ -64,7 +64,7 @@ const refreshAccessToken = async (refreshToken) => {
     });
 
     const accessToken = response.data.data.accessToken;
-    localStorage.setItem("accesstoken", accessToken);
+    localStorage.setItem("accessToken", accessToken);
     return accessToken;
   } catch (error) {
     console.error("Error refreshing access token:", error);
