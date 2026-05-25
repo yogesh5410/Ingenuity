@@ -31,11 +31,13 @@ export default function Register() {
     return /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/.test(email);
   };
 
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [isVerifyingCf, setIsVerifyingCf] = useState(false);
-  const [isVerifyingLc, setIsVerifyingLc] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
+    const verifyBtnRef = useRef(null);
+
+    const [isSendingOtp, setIsSendingOtp] = useState(false);
+    const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+    const [isVerifyingCf, setIsVerifyingCf] = useState(false);
+    const [isVerifyingLc, setIsVerifyingLc] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false);
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -55,13 +57,13 @@ export default function Register() {
   };
 
   const sendOtp = async () => {
-    if (isSendingOtp || otpVerified) return;
-
     if (!isInstituteEmail(form.email)) {
       return toast.error("Use your institute email (@iitbhilai.ac.in)");
     }
 
-    setIsSendingOtp(true);
+    setOtpSent(true);
+    toast.success("OTP successfully sent to your email");
+
     try {
       const res = await Axios({
         ...SummaryApi.sendEmail,
@@ -72,24 +74,14 @@ export default function Register() {
       });
 
       if (res.data.success) {
-        setOtpSent(true);
-        setForm((prev) => ({ ...prev, otp: "" }));
-        toast.success(res.data.message || "OTP sent to your email");
+        // toast.success(res.data.message);
       }
     } catch (error) {
       AxiosToastError(error);
-      setOtpSent(false);
-    } finally {
-      setIsSendingOtp(false);
     }
   };
 
   const verifyOtp = async () => {
-    if (isVerifyingOtp || otpVerified) return;
-    if (!otpSent) return toast.error("Send OTP first");
-    if (form.otp.length !== 6) return toast.error("Enter 6-digit OTP");
-
-    setIsVerifyingOtp(true);
     try {
       const res = await Axios({
         ...SummaryApi.verifyOtp,
@@ -105,16 +97,10 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
-    } finally {
-      setIsVerifyingOtp(false);
     }
   };
 
   const verifyCfId = async () => {
-    if (isVerifyingCf || cfVerified) return;
-    if (!form.cf_id) return toast.error("Enter Codeforces ID");
-
-    setIsVerifyingCf(true);
     try {
       const res = await Axios({
         ...SummaryApi.verifyCfId,
@@ -129,16 +115,10 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
-    } finally {
-      setIsVerifyingCf(false);
     }
   };
 
   const verifyLcId = async () => {
-    if (isVerifyingLc || lcVerified) return;
-    if (!form.lc_id) return toast.error("Enter LeetCode ID");
-
-    setIsVerifyingLc(true);
     try {
       const res = await Axios({
         ...SummaryApi.verifyLcId,
@@ -153,14 +133,10 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
-    } finally {
-      setIsVerifyingLc(false);
     }
   };
 
   const handleRegister = async () => {
-    if (isRegistering) return;
-
     if (!isInstituteEmail(form.email)) {
       return toast.error("Use your institute email (@iitbhilai.ac.in)");
     }
@@ -179,7 +155,6 @@ export default function Register() {
       return toast.error("All fields are required");
     }
 
-    setIsRegistering(true);
     try {
       const res = await Axios({
         ...SummaryApi.register,
@@ -198,8 +173,6 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
-    } finally {
-      setIsRegistering(false);
     }
   };
 
@@ -252,12 +225,12 @@ export default function Register() {
           />
           <button
             onClick={sendOtp}
-            disabled={isSendingOtp || otpVerified || !form.email}
+            disabled={otpSent || otpVerified || !form.email}
             className={`cursor-pointer px-4 py-2 rounded-xl text-white font-medium shadow-sm transition-all ${
               otpSent ? "bg-emerald-600 hover:bg-emerald-700" : "bg-emerald-600 hover:bg-emerald-700"
             } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
-            {otpVerified ? "Verified" : isSendingOtp ? "Sending..." : otpSent ? "Resend OTP" : "Send OTP"}
+            {otpVerified ? "Verified" : "Send OTP"}
           </button>
         </div>
 
@@ -271,12 +244,12 @@ export default function Register() {
             />
             <button
               onClick={verifyOtp}
-              disabled={form.otp.length !== 6 || isVerifyingOtp}
+              disabled={form.otp.length !== 6}
               className={`cursor-pointer px-4 py-2 rounded-xl text-white ${
                 otpVerified ? "bg-emerald-600" : "bg-sky-600 hover:bg-sky-700"
               } transition-all disabled:opacity-60 disabled:cursor-not-allowed`}
             >
-              {otpVerified ? "Verified" : isVerifyingOtp ? "Verifying..." : "Verify"}
+              {otpVerified ? "Verified" : "Verify"}
             </button>
           </div>
         )}
@@ -292,12 +265,12 @@ export default function Register() {
           />
           <button
             onClick={verifyCfId}
-            disabled={isVerifyingCf || cfVerified || !form.cf_id}
+            disabled={cfVerified || !form.cf_id}
             className={`cursor-pointer px-4 py-2 rounded-xl text-white font-medium shadow-sm transition-all ${
               cfVerified ? "bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700"
             } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
-            {cfVerified ? "Verified" : isVerifyingCf ? "Verifying..." : "Verify"}
+            {cfVerified ? "Verified" : "Verify"}
           </button>
         </div>
 
@@ -312,12 +285,12 @@ export default function Register() {
           />
           <button
             onClick={verifyLcId}
-            disabled={isVerifyingLc || lcVerified || !form.lc_id}
+            disabled={lcVerified || !form.lc_id}
             className={`cursor-pointer px-4 py-2 rounded-xl text-white font-medium shadow-sm transition-all ${
               lcVerified ? "bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700"
             } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
-            {lcVerified ? "Verified" : isVerifyingLc ? "Verifying..." : "Verify"}
+            {lcVerified ? "Verified" : "Verify"}
           </button>
         </div>
 
@@ -357,14 +330,14 @@ export default function Register() {
 
         <button
           onClick={handleRegister}
-          disabled={isRegistering || !(otpVerified && cfVerified && lcVerified)}
+          disabled={!(otpVerified && cfVerified && lcVerified)}
           className={`w-full py-3 rounded-xl font-semibold transition shadow ${
             otpVerified && cfVerified && lcVerified
               ? "bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer"
               : "bg-zinc-400 text-white cursor-not-allowed"
           }`}
         >
-          {isRegistering ? "Registering..." : "Register"}
+          Register
         </button>
       </div>
     </div>

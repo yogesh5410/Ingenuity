@@ -100,9 +100,8 @@ export async function verifyLeetCodeController(request, response) {
 export async function sendOTPController(request, response) {
   try {
     const { name, email } = request.body
-    const normalizedEmail = email?.trim().toLowerCase()
 
-    if (!normalizedEmail) {
+    if (!email) {
       return response.status(400).json({
         success: false,
         error: true,
@@ -113,16 +112,16 @@ export async function sendOTPController(request, response) {
     const otp = generatedOtp()
     const otp_expire_time = new Date(Date.now() + 5 * 60 * 1000)
 
+    await OTPVerification.deleteMany({ email })
+
+    const newOTP = new OTPVerification({ email, otp, otp_expire_time })
+    await newOTP.save()
+
     await sendEmail({
-      sendTo: normalizedEmail,
+      sendTo: email,
       subject: "OTP Verification - Ingenuity Club",
       html: otpEmailTemplate({ name, email, otp }),
     })
-
-    await OTPVerification.deleteMany({ email: normalizedEmail })
-
-    const newOTP = new OTPVerification({ email: normalizedEmail, otp, otp_expire_time })
-    await newOTP.save()
 
     return response.status(200).json({
       success: true,
@@ -142,10 +141,8 @@ export async function sendOTPController(request, response) {
 export async function verifyOTPController(request, response) {
   try {
     const { email, otp } = request.body
-    const normalizedEmail = email?.trim().toLowerCase()
-    const normalizedOtp = otp?.trim()
 
-    if (!normalizedEmail || !normalizedOtp) {
+    if (!email || !otp) {
       return response.status(400).json({
         success: false,
         error: true,
@@ -153,7 +150,7 @@ export async function verifyOTPController(request, response) {
       })
     }
 
-    const record = await OTPVerification.findOne({ email: normalizedEmail })
+    const record = await OTPVerification.findOne({ email })
 
     if (!record) {
       return response.status(404).json({
@@ -163,7 +160,7 @@ export async function verifyOTPController(request, response) {
       })
     }
 
-    if (record.otp !== normalizedOtp) {
+    if (record.otp !== otp) {
       return response.status(401).json({
         success: false,
         error: true,
@@ -179,7 +176,7 @@ export async function verifyOTPController(request, response) {
       })
     }
 
-    await OTPVerification.deleteMany({ email: normalizedEmail })
+    await OTPVerification.deleteMany({ email })
 
     return response.status(200).json({
       success: true,

@@ -26,7 +26,7 @@ app.use(helmet({
     crossOriginResourcePolicy : false   //allow request from any domain
 }))
 
-const PORT = process.env.PORT || 8080
+const PORT = 8080 || process.env.PORT
 
 app.get("/", (request, response) => {
     //server to client
