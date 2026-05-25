@@ -6,8 +6,7 @@ dotenv.config();
 const { SEND_GMAIL, GMAIL_USER } = process.env;
 
 if (!SEND_GMAIL || !GMAIL_USER) {
-  console.error("❌ SEND_GMAIL or GMAIL_USER is missing in the .env file");
-  process.exit(1);
+  throw new Error("SEND_GMAIL or GMAIL_USER is missing");
 }
 
 const transporter = nodemailer.createTransport({

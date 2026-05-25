@@ -21,18 +21,27 @@ app.use(cors({
 //console.log("CORS enabled for", process.env.FRONTEND_URL)
 app.use(express.json())    //all request will be in json format
 app.use(cookieParser())
-app.use(morgan())
+app.use(morgan("dev"))
 app.use(helmet({
     crossOriginResourcePolicy : false   //allow request from any domain
 }))
 
-const PORT = 8080 || process.env.PORT
+const PORT = process.env.PORT || 8080
 
 app.get("/", (request, response) => {
     //server to client
     response.json({
         message: "Server is running " + PORT
     })
+})
+
+app.use('/api', async (request, response, next) => {
+    try {
+        await connectDB()
+        next()
+    } catch (error) {
+        next(error)
+    }
 })
 
 app.use('/api/verify', verifyRouter)
@@ -42,8 +51,24 @@ app.use('/api/contest', contestRouter)
 app.use("/api/file", uploadRouter)
 app.use('/api/event', eventRouter)
 
-connectDB().then(()=>{
-    app.listen(PORT,()=>{
-        console.log("Server is running ",PORT)
+app.use((error, request, response, next) => {
+    console.error(error)
+    response.status(500).json({
+        success: false,
+        error: true,
+        message: error.message || "Internal Server Error"
     })
 })
+
+if (!process.env.VERCEL) {
+    connectDB().then(()=>{
+        app.listen(PORT,()=>{
+            console.log("Server is running ",PORT)
+        })
+    }).catch((error) => {
+        console.error("Failed to start server", error)
+        process.exit(1)
+    })
+}
+
+export default app
