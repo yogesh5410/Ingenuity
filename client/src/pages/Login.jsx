@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import Axios from "../utils/axios";
@@ -17,6 +17,8 @@ export default function Login() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,15 +53,30 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    if (emailRef.current) emailRef.current.focus();
+  }, []);
+
+  useEffect(() => {
+    const listener = (e) => {
+      if (e.key !== "Enter") return;
+      if (document.activeElement?.tagName?.toLowerCase() === 'button') return;
+      handleLogin();
+    };
+    window.addEventListener("keydown", listener);
+    return () => window.removeEventListener("keydown", listener);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+
   const isFormFilled = form.email.trim() && form.password.trim();
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-green-100 to-blue-200 dark:from-zinc-800 dark:to-zinc-900 px-4">
-      <div className="w-full max-w-md p-8 bg-white dark:bg-zinc-900 shadow-xl rounded-2xl space-y-6 text-zinc-900 dark:text-white transition-all duration-300">
-        <h2 className="text-3xl font-bold text-center text-green-700 dark:text-green-400">
+    <div className="flex justify-center items-center min-h-screen bg-slate-100 dark:bg-slate-900 px-4">
+      <div className="w-full max-w-md p-8 bg-white dark:bg-slate-800 shadow-2xl rounded-2xl space-y-6 text-slate-800 dark:text-white transition-all duration-300 border border-slate-200 dark:border-slate-700 animate-[fadeIn_300ms_ease-out]">
+        <h2 className="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-400">
           Welcome Back
         </h2>
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-center text-sm text-slate-500 dark:text-slate-400">
           Login to your Ingenuity account
         </p>
 
@@ -70,7 +87,8 @@ export default function Login() {
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
-            className="w-full p-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+            ref={emailRef}
+            className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
           />
 
           <div className="relative">
@@ -80,11 +98,12 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+              ref={passwordRef}
+              className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3.5 text-zinc-500 cursor-pointer"
+              className="absolute right-3 top-3.5 text-slate-500 cursor-pointer"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </span>
@@ -94,7 +113,7 @@ export default function Login() {
           <div className="text-right -mt-2">
             <Link
               to="/forgot-password"
-              className="text-sm text-blue-600 hover:underline transition-all duration-200"
+              className="text-sm text-indigo-600 hover:underline dark:text-indigo-400 transition-all duration-200"
             >
               Forgot password?
             </Link>
@@ -102,10 +121,10 @@ export default function Login() {
 
           <button
             onClick={handleLogin}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
+            className={`w-full py-3 rounded-lg font-semibold text-white transition-all shadow-md ${
               isFormFilled
-                ? "bg-green-600 hover:bg-green-700 cursor-pointer"
-                : "bg-zinc-400 cursor-not-allowed"
+                ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                : "bg-slate-400 dark:bg-slate-500 cursor-not-allowed"
             }`}
             disabled={!isFormFilled}
           >
@@ -115,7 +134,7 @@ export default function Login() {
 
         <div className="text-center text-sm">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-600 hover:underline">
+          <Link to="/register" className="text-indigo-600 hover:underline dark:text-indigo-400">
             Register
           </Link>
         </div>

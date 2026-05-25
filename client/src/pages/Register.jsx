@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Axios from "../utils/axios";
 import SummaryApi from "../common/summaryApi";
 import toast from "react-hot-toast";
 import AxiosToastError from "../utils/axiosToastError";
 import { useNavigate } from "react-router-dom";
+import OTPInput from "../components/OTPInput";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -24,11 +25,17 @@ export default function Register() {
   const [lcVerified, setLcVerified] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const emailRef = useRef(null);
 
   const isInstituteEmail = (email) => {
     return /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/.test(email);
   };
 
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isVerifyingCf, setIsVerifyingCf] = useState(false);
+  const [isVerifyingLc, setIsVerifyingLc] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -48,13 +55,13 @@ export default function Register() {
   };
 
   const sendOtp = async () => {
+    if (isSendingOtp || otpVerified) return;
+
     if (!isInstituteEmail(form.email)) {
       return toast.error("Use your institute email (@iitbhilai.ac.in)");
     }
 
-    setOtpSent(true);
-    toast.success("OTP successfully sent to your email");
-
+    setIsSendingOtp(true);
     try {
       const res = await Axios({
         ...SummaryApi.sendEmail,
@@ -65,14 +72,24 @@ export default function Register() {
       });
 
       if (res.data.success) {
-        // toast.success(res.data.message);
+        setOtpSent(true);
+        setForm((prev) => ({ ...prev, otp: "" }));
+        toast.success(res.data.message || "OTP sent to your email");
       }
     } catch (error) {
       AxiosToastError(error);
+      setOtpSent(false);
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
   const verifyOtp = async () => {
+    if (isVerifyingOtp || otpVerified) return;
+    if (!otpSent) return toast.error("Send OTP first");
+    if (form.otp.length !== 6) return toast.error("Enter 6-digit OTP");
+
+    setIsVerifyingOtp(true);
     try {
       const res = await Axios({
         ...SummaryApi.verifyOtp,
@@ -88,10 +105,16 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
   const verifyCfId = async () => {
+    if (isVerifyingCf || cfVerified) return;
+    if (!form.cf_id) return toast.error("Enter Codeforces ID");
+
+    setIsVerifyingCf(true);
     try {
       const res = await Axios({
         ...SummaryApi.verifyCfId,
@@ -106,10 +129,16 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
+    } finally {
+      setIsVerifyingCf(false);
     }
   };
 
   const verifyLcId = async () => {
+    if (isVerifyingLc || lcVerified) return;
+    if (!form.lc_id) return toast.error("Enter LeetCode ID");
+
+    setIsVerifyingLc(true);
     try {
       const res = await Axios({
         ...SummaryApi.verifyLcId,
@@ -124,10 +153,14 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
+    } finally {
+      setIsVerifyingLc(false);
     }
   };
 
   const handleRegister = async () => {
+    if (isRegistering) return;
+
     if (!isInstituteEmail(form.email)) {
       return toast.error("Use your institute email (@iitbhilai.ac.in)");
     }
@@ -146,6 +179,7 @@ export default function Register() {
       return toast.error("All fields are required");
     }
 
+    setIsRegistering(true);
     try {
       const res = await Axios({
         ...SummaryApi.register,
@@ -164,13 +198,37 @@ export default function Register() {
       }
     } catch (error) {
       AxiosToastError(error);
+    } finally {
+      setIsRegistering(false);
     }
   };
 
+  useEffect(() => {
+    if (emailRef.current) emailRef.current.focus();
+  }, []);
+
+  // Enter key handling across phases
+  useEffect(() => {
+    const listener = (e) => {
+      if (e.key !== "Enter") return;
+      if (!otpSent) return sendOtp();
+      if (otpSent && !otpVerified && form.otp.length === 6) return verifyOtp();
+      if (otpVerified && (!cfVerified || !lcVerified)) {
+        if (!cfVerified && form.cf_id) return verifyCfId();
+        if (!lcVerified && form.lc_id) return verifyLcId();
+        return;
+      }
+      if (otpVerified && cfVerified && lcVerified) return handleRegister();
+    };
+    window.addEventListener("keydown", listener);
+    return () => window.removeEventListener("keydown", listener);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpSent, otpVerified, cfVerified, lcVerified, form]);
+
   return (
-    <div className="flex justify-center items-center min-h-[85vh] bg-gray-100 dark:bg-zinc-700 px-4">
-      <div className="mx-2 my-10 max-w-md lg:min-w-md p-6 bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl space-y-4 text-zinc-900 dark:text-white">
-        <h2 className="text-2xl font-semibold text-center">Register to Ingenuity</h2>
+    <div className="flex justify-center items-center min-h-[85vh] bg-gradient-to-br from-emerald-50 to-sky-100 dark:from-zinc-800 dark:to-zinc-900 px-4">
+      <div className="mx-2 my-10 max-w-md lg:min-w-md p-6 md:p-8 bg-white/90 dark:bg-zinc-900/90 backdrop-blur shadow-xl rounded-2xl space-y-5 text-zinc-900 dark:text-white border border-zinc-100 dark:border-zinc-800 animate-[fadeIn_300ms_ease-out]">
+        <h2 className="text-3xl font-bold text-center text-emerald-700 dark:text-emerald-400">Register to Ingenuity</h2>
 
         <input
           type="text"
@@ -178,7 +236,7 @@ export default function Register() {
           value={form.name}
           onChange={handleChange}
           placeholder="Name"
-          className="w-full p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+          className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
         />
 
         <div className="flex gap-2">
@@ -188,37 +246,37 @@ export default function Register() {
             value={form.email}
             onChange={handleChange}
             placeholder="Institute Email (e.g. abc@iitbhilai.ac.in)"
-            className="flex-1 p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+            ref={emailRef}
+            className="flex-1 p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
             disabled={otpVerified}
           />
           <button
             onClick={sendOtp}
-            disabled={otpSent || otpVerified || !form.email}
-            className={`cursor-pointer px-4 py-2 rounded-lg text-white ${
-              otpSent ? "bg-green-600" : "bg-blue-600"
-            } disabled:opacity-50`}
+            disabled={isSendingOtp || otpVerified || !form.email}
+            className={`cursor-pointer px-4 py-2 rounded-xl text-white font-medium shadow-sm transition-all ${
+              otpSent ? "bg-emerald-600 hover:bg-emerald-700" : "bg-emerald-600 hover:bg-emerald-700"
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
-            {otpVerified ? "Verified" : "Send OTP"}
+            {otpVerified ? "Verified" : isSendingOtp ? "Sending..." : otpSent ? "Resend OTP" : "Send OTP"}
           </button>
         </div>
 
         {!otpVerified && (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              name="otp"
+          <div className="flex flex-col gap-3">
+            <OTPInput
+              length={6}
               value={form.otp}
-              onChange={handleChange}
-              placeholder="Enter OTP"
-              className="flex-1 p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+              onChange={(v) => setForm((prev) => ({ ...prev, otp: v }))}
+              onComplete={() => verifyOtp()}
             />
             <button
               onClick={verifyOtp}
-              className={`cursor-pointer px-4 py-2 rounded-lg text-white ${
-                otpVerified ? "bg-green-600" : "bg-blue-400"
-              } disabled:opacity-50`}
+              disabled={form.otp.length !== 6 || isVerifyingOtp}
+              className={`cursor-pointer px-4 py-2 rounded-xl text-white ${
+                otpVerified ? "bg-emerald-600" : "bg-sky-600 hover:bg-sky-700"
+              } transition-all disabled:opacity-60 disabled:cursor-not-allowed`}
             >
-              {otpVerified ? "Verified" : "Verify"}
+              {otpVerified ? "Verified" : isVerifyingOtp ? "Verifying..." : "Verify"}
             </button>
           </div>
         )}
@@ -230,16 +288,16 @@ export default function Register() {
             value={form.cf_id}
             onChange={handleChange}
             placeholder="Codeforces ID"
-            className="flex-1 p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+            className="flex-1 p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
           />
           <button
             onClick={verifyCfId}
-            disabled={cfVerified || !form.cf_id}
-            className={`cursor-pointer px-4 py-2 rounded-lg text-white ${
-              cfVerified ? "bg-green-600" : "bg-blue-600"
-            } disabled:opacity-50`}
+            disabled={isVerifyingCf || cfVerified || !form.cf_id}
+            className={`cursor-pointer px-4 py-2 rounded-xl text-white font-medium shadow-sm transition-all ${
+              cfVerified ? "bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700"
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
-            {cfVerified ? "Verified" : "Verify"}
+            {cfVerified ? "Verified" : isVerifyingCf ? "Verifying..." : "Verify"}
           </button>
         </div>
 
@@ -250,16 +308,16 @@ export default function Register() {
             value={form.lc_id}
             onChange={handleChange}
             placeholder="LeetCode ID"
-            className="flex-1 p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+            className="flex-1 p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
           />
           <button
             onClick={verifyLcId}
-            disabled={lcVerified || !form.lc_id}
-            className={`cursor-pointer px-4 py-2 rounded-lg text-white ${
-              lcVerified ? "bg-green-600" : "bg-blue-600"
-            } disabled:opacity-50`}
+            disabled={isVerifyingLc || lcVerified || !form.lc_id}
+            className={`cursor-pointer px-4 py-2 rounded-xl text-white font-medium shadow-sm transition-all ${
+              lcVerified ? "bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700"
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
-            {lcVerified ? "Verified" : "Verify"}
+            {lcVerified ? "Verified" : isVerifyingLc ? "Verifying..." : "Verify"}
           </button>
         </div>
 
@@ -270,11 +328,11 @@ export default function Register() {
             value={form.password}
             onChange={handleChange}
             placeholder="Password"
-            className="w-full p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
           />
           <span
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-2.5 cursor-pointer"
+            className="absolute right-3 top-3.5 text-zinc-500 cursor-pointer"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </span>
@@ -287,11 +345,11 @@ export default function Register() {
             value={form.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm Password"
-            className="w-full p-2 rounded-lg border dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800"
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-sm"
           />
           <span
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-2.5 cursor-pointer"
+            className="absolute right-3 top-3.5 text-zinc-500 cursor-pointer"
           >
             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </span>
@@ -299,14 +357,14 @@ export default function Register() {
 
         <button
           onClick={handleRegister}
-          disabled={!(otpVerified && cfVerified && lcVerified)}
-          className={`w-full py-2 rounded-lg font-semibold transition ${
+          disabled={isRegistering || !(otpVerified && cfVerified && lcVerified)}
+          className={`w-full py-3 rounded-xl font-semibold transition shadow ${
             otpVerified && cfVerified && lcVerified
-              ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-              : "bg-gray-400 text-white cursor-not-allowed"
+              ? "bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer"
+              : "bg-zinc-400 text-white cursor-not-allowed"
           }`}
         >
-          Register
+          {isRegistering ? "Registering..." : "Register"}
         </button>
       </div>
     </div>
