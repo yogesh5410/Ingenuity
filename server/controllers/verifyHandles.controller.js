@@ -176,7 +176,12 @@ export async function verifyOTPController(request, response) {
       })
     }
 
-    await OTPVerification.deleteMany({ email })
+    record.isVerified = true
+    record.otp_expire_time = new Date(Date.now() + 10 * 60 * 1000)
+    await record.save()
+
+    // Delete any other OTP records for this email
+    await OTPVerification.deleteMany({ email, _id: { $ne: record._id } })
 
     return response.status(200).json({
       success: true,

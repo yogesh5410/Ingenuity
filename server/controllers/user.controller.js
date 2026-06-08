@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import UserModel from '../models/user.model.js';
+import OTPVerification from '../models/otp.model.js';
 import generatedAccessToken from '../utils/generatedAccessToken.js'
 import generatedRefreshToken from '../utils/generatedRefreshToken.js'
 import jwt from 'jsonwebtoken';
@@ -29,6 +30,16 @@ export async function register(req, res) {
       });
     }
 
+    // Verify that the email OTP has been verified
+    const verifiedRecord = await OTPVerification.findOne({ email, isVerified: true });
+    if (!verifiedRecord || new Date() > verifiedRecord.otp_expire_time) {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: 'Please verify OTP for this email before registering'
+      });
+    }
+
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -43,6 +54,9 @@ export async function register(req, res) {
     });
 
     await user.save();
+
+    // Delete verified OTP record to prevent replay/reuse
+    await OTPVerification.deleteOne({ _id: verifiedRecord._id });
 
     return res.status(201).json({
       success: true,
@@ -174,6 +188,16 @@ export async function forgotPassword(req, res) {
     }
     console.log("User found:", user);
 
+    // Verify that the email OTP has been verified
+    const verifiedRecord = await OTPVerification.findOne({ email, isVerified: true });
+    if (!verifiedRecord || new Date() > verifiedRecord.otp_expire_time) {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: 'Please verify OTP for this email before resetting password'
+      });
+    }
+
     // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
@@ -181,6 +205,9 @@ export async function forgotPassword(req, res) {
     // Update user's password
     user.password = hashedPassword;
     await user.save();
+
+    // Delete verified OTP record to prevent replay/reuse
+    await OTPVerification.deleteOne({ _id: verifiedRecord._id });
 
     return res.status(200).json({
       success: true,

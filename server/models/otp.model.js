@@ -15,6 +15,11 @@ const otpVerificationSchema = new mongoose.Schema({
   otp_expire_time: {
     type: Date,
     required: true
+  },
+
+  isVerified: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
