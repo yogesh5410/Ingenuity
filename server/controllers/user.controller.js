@@ -20,10 +20,8 @@ export async function register(req, res) {
       });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Check if user already exists (case-insensitive)
-    const existingUser = await UserModel.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
+    // Check if user already exists
+    const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -33,7 +31,7 @@ export async function register(req, res) {
     }
 
     // Verify that the email OTP has been verified
-    const verifiedRecord = await OTPVerification.findOne({ email: normalizedEmail, isVerified: true });
+    const verifiedRecord = await OTPVerification.findOne({ email, isVerified: true });
     if (!verifiedRecord || new Date() > verifiedRecord.otp_expire_time) {
       return res.status(400).json({
         success: false,
@@ -49,7 +47,7 @@ export async function register(req, res) {
     // Create and save new user
     const user = new UserModel({
       name,
-      email: normalizedEmail,
+      email,
       password: hashedPassword,
       codeforces_id: cf_id,
       leetcode_id: lc_id,
@@ -95,10 +93,8 @@ export async function login(req, res) {
       });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Check if user exists (case-insensitive)
-    const user = await UserModel.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
+    // Check if user exists
+    const user = await UserModel.findOne({ email });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -181,10 +177,8 @@ export async function forgotPassword(req, res) {
       });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Check if user exists (case-insensitive)
-    const user = await UserModel.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
+    // Check if user exists
+    const user = await UserModel.findOne({ email });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -195,7 +189,7 @@ export async function forgotPassword(req, res) {
     console.log("User found:", user);
 
     // Verify that the email OTP has been verified
-    const verifiedRecord = await OTPVerification.findOne({ email: normalizedEmail, isVerified: true });
+    const verifiedRecord = await OTPVerification.findOne({ email, isVerified: true });
     if (!verifiedRecord || new Date() > verifiedRecord.otp_expire_time) {
       return res.status(400).json({
         success: false,
