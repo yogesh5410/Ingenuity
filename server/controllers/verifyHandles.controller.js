@@ -109,18 +109,20 @@ export async function sendOTPController(request, response) {
       })
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+
     const otp = generatedOtp()
     const otp_expire_time = new Date(Date.now() + 5 * 60 * 1000)
 
-    await OTPVerification.deleteMany({ email })
+    await OTPVerification.deleteMany({ email: normalizedEmail })
 
-    const newOTP = new OTPVerification({ email, otp, otp_expire_time })
+    const newOTP = new OTPVerification({ email: normalizedEmail, otp, otp_expire_time })
     await newOTP.save()
 
     await sendEmail({
-      sendTo: email,
+      sendTo: normalizedEmail,
       subject: "OTP Verification - Ingenuity Club",
-      html: otpEmailTemplate({ name, email, otp }),
+      html: otpEmailTemplate({ name, email: normalizedEmail, otp }),
     })
 
     return response.status(200).json({
@@ -150,7 +152,9 @@ export async function verifyOTPController(request, response) {
       })
     }
 
-    const record = await OTPVerification.findOne({ email })
+    const normalizedEmail = email.toLowerCase().trim()
+
+    const record = await OTPVerification.findOne({ email: normalizedEmail })
 
     if (!record) {
       return response.status(404).json({
@@ -181,7 +185,7 @@ export async function verifyOTPController(request, response) {
     await record.save()
 
     // Delete any other OTP records for this email
-    await OTPVerification.deleteMany({ email, _id: { $ne: record._id } })
+    await OTPVerification.deleteMany({ email: normalizedEmail, _id: { $ne: record._id } })
 
     return response.status(200).json({
       success: true,
