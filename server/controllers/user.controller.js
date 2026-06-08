@@ -22,8 +22,8 @@ export async function register(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if user already exists
-    const existingUser = await UserModel.findOne({ email: normalizedEmail });
+    // Check if user already exists (case-insensitive)
+    const existingUser = await UserModel.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -97,8 +97,8 @@ export async function login(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if user exists
-    const user = await UserModel.findOne({ email: normalizedEmail });
+    // Check if user exists (case-insensitive)
+    const user = await UserModel.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -183,8 +183,8 @@ export async function forgotPassword(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if user exists
-    const user = await UserModel.findOne({ email: normalizedEmail });
+    // Check if user exists (case-insensitive)
+    const user = await UserModel.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
     if (!user) {
       return res.status(404).json({
         success: false,
